@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Galenic">    
+    <script src="js/knockout-2.2.0.js"></script>
+ 
+	<title>not much</title>
+</head>
+<body>
+
+<div class="pure-u-1">
+	
+	<div class="form">
+		<form data-bind="submit: sendinput" class="pure-form">
+			<fieldset><input type="text" data-bind="value: myinput" placeholder="enter message"/></fieldset>
+		</form>
+	</div>
+    <div class="form">
+    	<form data-bind="submit: sendlogin" class="pure-form">
+			<fieldset>
+            <input type="text" data-bind="value: username" placeholder="enter username"/>
+    		<input type="text" data-bind="value: password" placeholder="enter password"/>
+            <input type="submit" value="Login" />
+			</fieldset>
+		</form>
+	</div>
+	<div data-bind="foreach: messages">
+		<div class="message"><span data-bind="text: message" class="white"></span></div>
+	</div>
+	
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+	
+	function MainViewModel(data) {
+		var self = this;
+		var socket = io.connect(document.URL);
+		
+		self.messages = ko.observableArray([]);
+		self.myinput = ko.observable();
+		self.username = ko.observable();
+        self.password = ko.observable();
+		socket.on('pushdata', function (data) {
+			self.messages(data);
+		});
+		
+		self.sendinput = function(){
+			socket.emit('input', { 'message': self.myinput() });
+		};
+        self.sendlogin = function(){
+          console.log(self.username() + " " + self.password());  
+        };
+	}
+	
+	var vm = new MainViewModel();
+	ko.applyBindings(vm);
+	
+</script>
+	
+</body>
+</html>
